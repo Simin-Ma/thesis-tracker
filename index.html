@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>论文记录器</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #f0f5ff;
+            --accent-color: #ff7e5f;
+            --text-color: #333333;
+            --bg-color: #f9fbff;
+            --card-bg: #ffffff;
+            --border-color: #d1e1ff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .tabs {
+            display: flex;
+            background-color: var(--secondary-color);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            background-color: var(--secondary-color);
+            border: none;
+            flex: 1;
+            text-align: center;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        .tab.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        button.secondary {
+            background-color: #808080;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .entries-container {
+            margin-top: 20px;
+        }
+
+        .entries-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .entry-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .entry-card.quote {
+            border-left-color: var(--accent-color);
+        }
+
+        .entry-card.task {
+            border-left-color: #4CAF50;
+        }
+
+        .entry-card.completed {
+            opacity: 0.7;
+        }
+
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .entry-title {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .entry-date {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .entry-content {
+            margin-bottom: 15px;
+        }
+
+        .entry-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .action-btn {
+            background-color: #f0f0f0;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .action-btn:hover {
+            background-color: #e0e0e0;
+        }
+
+        .action-btn.edit {
+            color: var(--primary-color);
+        }
+
+        .action-btn.delete {
+            color: #f44336;
+        }
+
+        .action-btn.complete {
+            color: #4CAF50;
+        }
+
+        .tag {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .entry-meta {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .no-entries {
+            text-align: center;
+            padding: 30px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 4px;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .notification.error {
+            background-color: #f44336;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+            display: flex;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px 0 0 4px;
+            font-size: 16px;
+        }
+
+        .search-box button {
+            border-radius: 0 4px 4px 0;
+            margin-right: 0;
+        }
+
+        .export-import {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            button {
+                width: 100%;
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-book"></i> 论文记录器</h1>
+            <p>记录您的研究思路、引用和任务</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="notes"><i class="fas fa-pen"></i> 笔记</button>
+            <button class="tab" data-tab="quotes"><i class="fas fa-quote-right"></i> 引用</button>
+            <button class="tab" data-tab="tasks"><i class="fas fa-tasks"></i> 任务</button>
+        </div>
+
+        <!-- 笔记表单 -->
+        <div class="tab-content active" id="notes-tab">
+            <h2>添加笔记</h2>
+            <div class="form-group">
+                <label for="note-title">标题 *</label>
+                <input type="text" id="note-title" placeholder="写下你的笔记标题">
+            </div>
+            <div class="form-group">
+                <label for="note-content">内容 *</label>
+                <textarea id="note-content" placeholder="写下你的想法、见解或问题..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="note-tags">标签（用逗号分隔）</label>
+                <input type="text" id="note-tags" placeholder="例如：文献综述, 方法论, 想法">
+            </div>
+            <div class="action-buttons">
+                <button type="button" id="reset-note" class="secondary">重置</button>
+                <button type="button" id="save-note">保存笔记</button>
+            </div>
+        </div>
+
+        <!-- 引用表单 -->
+        <div class="tab-content" id="quotes-tab">
+            <h2>添加引用</h2>
+            <div class="form-group">
+                <label for="quote-source">来源 *</label>
+                <input type="text" id="quote-source" placeholder="书籍或文章标题">
+            </div>
+            <div class="form-group">
+                <label for="quote-author">作者 *</label>
+                <input type="text" id="quote-author" placeholder="作者姓名">
+            </div>
+            <div class="form-group">
+                <label for="quote-content">引用内容 *</label>
+                <textarea id="quote-content" placeholder="粘贴引用的文字..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="quote-tags">标签（用逗号分隔）</label>
+                <input type="text" id="quote-tags" placeholder="例如：理论基础, 重要引用">
+            </div>
+            <div class="action-buttons">
+                <button type="button" id="reset-quote" class="secondary">重置</button>
+                <button type="button" id="save-quote">保存引用</button>
+            </div>
+        </div>
+
+        <!-- 任务表单 -->
+        <div class="tab-content" id="tasks-tab">
+            <h2>添加任务</h2>
+            <div class="form-group">
+                <label for="task-title">任务 *</label>
+                <input type="text" id="task-title" placeholder="需要完成的任务">
+            </div>
+            <div class="form-group">
+                <label for="task-description">描述</label>
+                <textarea id="task-description" placeholder="任务的详细信息..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="task-date">截止日期 *</label>
+                <input type="date" id="task-date">
+            </div>
+            <div class="form-group">
+                <label for="task-priority">优先级</label>
+                <select id="task-priority">
+                    <option value="高">高</option>
+                    <option value="中" selected>中</option>
+                    <option value="低">低</option>
+                </select>
+            </div>
+            <div class="action-buttons">
+                <button type="button" id="reset-task" class="secondary">重置</button>
+                <button type="button" id="save-task">添加任务</button>
+            </div>
+        </div>
+
+        <!-- 搜索框 -->
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="搜索条目...">
+            <button id="search-btn"><i class="fas fa-search"></i></button>
+        </div>
+
+        <!-- 条目列表 -->
+        <div class="entries-container">
+            <div class="entries-header">
+                <h2><i class="fas fa-list"></i> 您的记录</h2>
+            </div>
+            <div id="entries-list">
+                <!-- 条目将通过JavaScript动态生成 -->
+                <div class="no-entries" id="no-entries">
+                    <p>目前没有记录。开始添加一些内容吧！</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 导出/导入按钮 -->
+        <div class="export-import">
+            <button id="export-btn"><i class="fas fa-download"></i> 导出数据</button>
+            <button id="import-btn"><i class="fas fa-upload"></i> 导入数据</button>
+            <input type="file" id="import-file" accept=".json" style="display: none;">
+        </div>
+    </div>
+
+    <!-- 通知 -->
+    <div class="notification" id="notification">保存成功！</div>
+
+    <script>
+        // 存储数据结构
+        let journalData = {
+            entries: [],
+            lastModified: new Date().toISOString()
+        };
+
+        // DOM元素
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        const noteTitle = document.getElementById('note-title');
+        const noteContent = document.getElementById('note-content');
+        const noteTags = document.getElementById('note-tags');
+        const saveNoteBtn = document.getElementById('save-note');
+        const resetNoteBtn = document.getElementById('reset-note');
+        
+        const quoteSource = document.getElementById('quote-source');
+        const quoteAuthor = document.getElementById('quote-author');
+        const quoteContent = document.getElementById('quote-content');
+        const quoteTags = document.getElementById('quote-tags');
+        const saveQuoteBtn = document.getElementById('save-quote');
+        const resetQuoteBtn = document.getElementById('reset-quote');
+        
+        const taskTitle = document.getElementById('task-title');
+        const taskDescription = document.getElementById('task-description');
+        const taskDate = document.getElementById('task-date');
+        const taskPriority = document.getElementById('task-priority');
+        const saveTaskBtn = document.getElementById('save-task');
+        const resetTaskBtn = document.getElementById('reset-task');
+        
+        const entriesList = document.getElementById('entries-list');
+        const noEntries = document.getElementById('no-entries');
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.getElementById('search-btn');
+        
+        const exportBtn = document.getElementById('export-btn');
+        const importBtn = document.getElementById('import-btn');
+        const importFile = document.getElementById('import-file');
+        
+        const notification = document.getElementById('notification');
+
+        // 当前状态
+        let currentEntryId = null;
+
+        // 初始化应用
+        function init() {
+            // 加载本地存储的数据
+            loadJournalData();
+            
+            // 渲染条目
+            renderEntries();
+            
+            // 设置事件监听器
+            setupEventListeners();
+            
+            // 设置默认任务日期为今天
+            const today = new Date().toISOString().split('T')[0];
+            taskDate.value = today;
+        }
+
+        // 加载本地存储的数据
+        function loadJournalData() {
+            try {
+                const savedData = localStorage.getItem('simpleThesisJournal');
+                if (savedData) {
+                    journalData = JSON.parse(savedData);
+                }
+            } catch (error) {
+                console.error('读取数据出错:', error);
+                showNotification('读取数据失败，已重置', 'error');
+            }
+        }
+
+        // 保存数据到本地存储
+        function saveJournalData() {
+            try {
+                journalData.lastModified = new Date().toISOString();
+                localStorage.setItem('simpleThesisJournal', JSON.stringify(journalData));
+            } catch (error) {
+                console.error('保存数据出错:', error);
+                showNotification('保存数据失败', 'error');
+            }
+        }
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 标签页切换
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    switchTab(tabName);
+                });
+            });
+            
+            // 笔记表单
+            saveNoteBtn.addEventListener('click', saveNote);
+            resetNoteBtn.addEventListener('click', () => resetForm('notes'));
+            
+            // 引用表单
+            saveQuoteBtn.addEventListener('click', saveQuote);
+            resetQuoteBtn.addEventListener('click', () => resetForm('quotes'));
+            
+            // 任务表单
+            saveTaskBtn.addEventListener('click', saveTask);
+            resetTaskBtn.addEventListener('click', () => resetForm('tasks'));
+            
+            // 搜索
+            searchBtn.addEventListener('click', () => renderEntries());
+            searchInput.addEventListener('input', () => renderEntries());
+            
+            // 导入导出
+            exportBtn.addEventListener('click', exportData);
+            importBtn.addEventListener('click', () => importFile.click());
+            importFile.addEventListener('change', importData);
+        }
+
+        // 切换标签页
+        function switchTab(tabName) {
+            tabs.forEach(tab => {
+                if (tab.getAttribute('data-tab') === tabName) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+            
+            tabContents.forEach(content => {
+                if (content.id === tabName + '-tab') {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
+            
+            // 重置当前表单
+            resetForm(tabName);
+            currentEntryId = null;
+        }
+
+        // 重置表单
+        function resetForm(formType) {
+            switch (formType) {
+                case 'notes':
+                    noteTitle.value = '';
+                    noteContent.value = '';
+                    noteTags.value = '';
+                    saveNoteBtn.textContent = '保存笔记';
+                    break;
+                    
+                case 'quotes':
+                    quoteSource.value = '';
+                    quoteAuthor.value = '';
+                    quoteContent.value = '';
+                    quoteTags.value = '';
+                    saveQuoteBtn.textContent = '保存引用';
+                    break;
+                    
+                case 'tasks':
+                    taskTitle.value = '';
+                    taskDescription.value = '';
+                    const today = new Date().toISOString().split('T')[0];
+                    taskDate.value = today;
+                    taskPriority.value = '中';
+                    saveTaskBtn.textContent = '添加任务';
+                    break;
+            }
+        }
+
+        // 保存笔记
+        function saveNote() {
+            // 验证
+            if (!noteTitle.value.trim() || !noteContent.value.trim()) {
+                showNotification('请填写标题和内容', 'error');
+                return;
+            }
+            
+            // 获取标签
+            const tags = noteTags.value.split(',')
+                .map(tag => tag.trim())
+                .filter(tag => tag !== '');
+            
+            const entry = {
+                id: currentEntryId || Date.now().toString(),
+                type: 'note',
+                title: noteTitle.value.trim(),
+                content: noteContent.value.trim(),
+                tags: tags,
+                createdAt: currentEntryId ? getEntryById(currentEntryId).createdAt : new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            saveEntry(entry);
+            resetForm('notes');
+            currentEntryId = null;
+            
+            showNotification('笔记保存成功');
+        }
+
+        // 保存引用
+        function saveQuote() {
+            // 验证
+            if (!quoteSource.value.trim() || !quoteAuthor.value.trim() || !quoteContent.value.trim()) {
+                showNotification('请填写来源、作者和引用内容', 'error');
+                return;
+            }
+            
+            // 获取标签
+            const tags = quoteTags.value.split(',')
+                .map(tag => tag.trim())
+                .filter(tag => tag !== '');
+            
+            const entry = {
+                id: currentEntryId || Date.now().toString(),
+                type: 'quote',
+                title: quoteSource.value.trim(),
+                author: quoteAuthor.value.trim(),
+                content: quoteContent.value.trim(),
+                tags: tags,
+                createdAt: currentEntryId ? getEntryById(currentEntryId).createdAt : new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            saveEntry(entry);
+            resetForm('quotes');
+            currentEntryId = null;
+            
+            showNotification('引用保存成功');
+        }
+
+        // 保存任务
+        function saveTask() {
+            // 验证
+            if (!taskTitle.value.trim() || !taskDate.value) {
+                showNotification('请填写任务标题和截止日期', 'error');
+                return;
+            }
+            
+            const entry = {
+                id: currentEntryId || Date.now().toString(),
+                type: 'task',
+                title: taskTitle.value.trim(),
+                description: taskDescription.value.trim(),
+                dueDate: taskDate.value,
+                priority: taskPriority.value,
+                completed: currentEntryId ? getEntryById(currentEntryId).completed : false,
+                createdAt: currentEntryId ? getEntryById(currentEntryId).createdAt : new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            saveEntry(entry);
+            resetForm('tasks');
+            currentEntryId = null;
+            
+            showNotification('任务保存成功');
+        }
+
+        // 保存条目
+        function saveEntry(entry) {
+            if (currentEntryId) {
+                // 更新现有条目
+                const index = journalData.entries.findIndex(e => e.id === entry.id);
+                if (index !== -1) {
+                    journalData.entries[index] = entry;
+                }
+            } else {
+                // 添加新条目
+                journalData.entries.push(entry);
+            }
+            
+            // 保存到本地存储
+            saveJournalData();
+            
+            // 重新渲染条目
+            renderEntries();
+        }
+
+        // 通过ID获取条目
+        function getEntryById(id) {
+            return journalData.entries.find(entry => entry.id === id);
+        }
+
+        // 渲染条目列表
+        function renderEntries() {
+            // 过滤搜索
+            const searchTerm = searchInput.value.toLowerCase();
+            let filteredEntries = journalData.entries;
+            
+            if (searchTerm) {
+                filteredEntries = journalData.entries.filter(entry => {
+                    const titleMatch = entry.title && entry.title.toLowerCase().includes(searchTerm);
+                    const contentMatch = entry.content && entry.content.toLowerCase().includes(searchTerm);
+                    const authorMatch = entry.author && entry.author.toLowerCase().includes(searchTerm);
+                    const descriptionMatch = entry.description && entry.description.toLowerCase().includes(searchTerm);
+                    const tagMatch = entry.tags && entry.tags.some(tag => tag.toLowerCase().includes(searchTerm));
+                    
+                    return titleMatch || contentMatch || authorMatch || descriptionMatch || tagMatch;
+                });
+            }
+            
+            // 按日期排序（最新的在前）
+            filteredEntries.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+            
+            // 清空列表
+            entriesList.innerHTML = '';
+            
+            // 显示或隐藏"无条目"消息
+            if (filteredEntries.length === 0) {
+                if (searchTerm) {
+                    entriesList.innerHTML = `
+                        <div class="no-entries">
+                            <p>没有找到匹配的记录</p>
+                        </div>
+                    `;
+                } else {
+                    entriesList.appendChild(noEntries);
+                    noEntries.style.display = 'block';
+                }
+                return;
+            }
+            
+            noEntries.style.display = 'none';
+            
+            // 创建条目卡片
+            filteredEntries.forEach(entry => {
+                const entryCard = createEntryCard(entry);
+                entriesList.appendChild(entryCard);
+            });
+        }
+
+        // 创建条目卡片
+        function createEntryCard(entry) {
+            const card = document.createElement('div');
+            card.className = `entry-card ${entry.type} ${entry.completed ? 'completed' : ''}`;
+            
+            // 格式化日期
+            const date = new Date(entry.updatedAt);
+            const formattedDate = `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+            
+            // 卡片头部
+            let header = `
+                <div class="entry-header">
+                    <div class="entry-title">${entry.title}</div>
+                    <div class="entry-date">${formattedDate}</div>
+                </div>
+            `;
+            
+            // 卡片内容
+            let content = '';
+            let meta = '';
+            
+            switch (entry.type) {
+                case 'note':
+                    content = `<div class="entry-content">${entry.content}</div>`;
+                    break;
+                    
+                case 'quote':
+                    content = `
+                        <div class="entry-content">
+                            <blockquote>${entry.content}</blockquote>
+                            <p><em>— ${entry.author}</em></p>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'task':
+                    const dueDate = new Date(entry.dueDate);
+                    const formattedDueDate = `${dueDate.getFullYear()}-${(dueDate.getMonth()+1).toString().padStart(2, '0')}-${dueDate.getDate().toString().padStart(2, '0')}`;
+                    
+                    content = `
+                        <div class="entry-content">
+                            ${entry.description ? `<p>${entry.description}</p>` : ''}
+                            <p><strong>截止日期:</strong> ${formattedDueDate}</p>
+                            <p><strong>优先级:</strong> ${entry.priority}</p>
+                            <p><strong>状态:</strong> ${entry.completed ? '已完成' : '进行中'}</p>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            // 标签
+            if (entry.tags && entry.tags.length > 0) {
+                meta += `<div class="entry-meta">`;
+                entry.tags.forEach(tag => {
+                    meta += `<span class="tag">${tag}</span>`;
+                });
+                meta += `</div>`;
+            }
+            
+            // 操作按钮
+            let actions = `
+                <div class="entry-actions">
+                    <button class="action-btn edit" data-id="${entry.id}">
+                        <i class="fas fa-edit"></i> 编辑
+                    </button>
+                    <button class="action-btn delete" data-id="${entry.id}">
+                        <i class="fas fa-trash"></i> 删除
+                    </button>
+            `;
+            
+            // 仅对任务添加完成按钮
+            if (entry.type === 'task') {
+                actions += `
+                    <button class="action-btn complete" data-id="${entry.id}">
+                        <i class="fas ${entry.completed ? 'fa-check-circle' : 'fa-circle'}"></i> 
+                        ${entry.completed ? '标记为未完成' : '标记为已完成'}
+                    </button>
+                `;
+            }
+            
+            actions += `</div>`;
+            
+            // 组合卡片
+            card.innerHTML = header + content + meta + actions;
+            
+            // 添加事件监听器
+            const editBtn = card.querySelector('.edit');
+            editBtn.addEventListener('click', () => editEntry(entry.id));
+            
+            const deleteBtn = card.querySelector('.delete');
+            deleteBtn.addEventListener('click', () => deleteEntry(entry.id));
+            
+            if (entry.type === 'task') {
+                const completeBtn = card.querySelector('.complete');
+                completeBtn.addEventListener('click', () => toggleTaskCompletion(entry.id));
+            }
+            
+            return card;
+        }
+
+        // 编辑条目
+        function editEntry(id) {
+            const entry = getEntryById(id);
+            if (!entry) return;
+            
+            currentEntryId = id;
+            
+            switch (entry.type) {
+                case 'note':
+                    switchTab('notes');
+                    noteTitle.value = entry.title;
+                    noteContent.value = entry.content;
+                    noteTags.value = entry.tags ? entry.tags.join(', ') : '';
+                    saveNoteBtn.textContent = '更新笔记';
+                    break;
+                    
+                case 'quote':
+                    switchTab('quotes');
+                    quoteSource.value = entry.title;
+                    quoteAuthor.value = entry.author;
+                    quoteContent.value = entry.content;
+                    quoteTags.value = entry.tags ? entry.tags.join(', ') : '';
+                    saveQuoteBtn.textContent = '更新引用';
+                    break;
+                    
+                case 'task':
+                    switchTab('tasks');
+                    taskTitle.value = entry.title;
+                    taskDescription.value = entry.description || '';
+                    taskDate.value = entry.dueDate;
+                    taskPriority.value = entry.priority;
+                    saveTaskBtn.textContent = '更新任务';
+                    break;
+            }
+        }
+
+        // 删除条目
+        function deleteEntry(id) {
+            if (confirm('确定要删除这条记录吗？此操作不可撤销。')) {
+                const index = journalData.entries.findIndex(entry => entry.id === id);
+                
+                if (index !== -1) {
+                    journalData.entries.splice(index, 1);
+                    saveJournalData();
+                    renderEntries();
+                    showNotification('记录已删除');
+                }
+            }
+        }
+
+        // 切换任务完成状态
+        function toggleTaskCompletion(id) {
+            const entry = getEntryById(id);
+            
+            if (entry && entry.type === 'task') {
+                entry.completed = !entry.completed;
+                entry.updatedAt = new Date().toISOString();
+                
+                saveJournalData();
+                renderEntries();
+                
+                showNotification(`任务已标记为${entry.completed ? '已完成' : '未完成'}`);
+            }
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'success') {
+            notification.textContent = message;
+            notification.className = 'notification' + (type === 'error' ? ' error' : '');
+            
+            notification.classList.add('show');
+            
+            // 3秒后隐藏
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // 导出数据
+        function exportData() {
+            if (journalData.entries.length === 0) {
+                showNotification('没有数据可导出', 'error');
+                return;
+            }
+            
+            try {
+                const dataStr = JSON.stringify(journalData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `thesis-journal-export-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                
+                URL.revokeObjectURL(url);
+                
+                showNotification('数据导出成功');
+            } catch (error) {
+                console.error('导出数据出错:', error);
+                showNotification('导出数据失败', 'error');
+            }
+        }
+
+        // 导入数据
+        function importData(e) {
+            const file = e.target.files[0];
+            
+            if (!file) {
+                return;
+            }
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(event) {
+                try {
+                    const importedData = JSON.parse(event.target.result);
+                    
+                    // 验证导入的数据
+                    if (importedData.entries && Array.isArray(importedData.entries)) {
+                        // 确认是否覆盖当前数据
+                        if (journalData.entries.length > 0) {
+                            if (confirm('导入数据将覆盖当前所有记录。确定要继续吗？')) {
+                                journalData = importedData;
+                                saveJournalData();
+                                renderEntries();
+                                showNotification('数据导入成功');
+                            }
+                        } else {
+                            journalData = importedData;
+                            saveJournalData();
+                            renderEntries();
+                            showNotification('数据导入成功');
+                        }
+                    } else {
+                        showNotification('导入的数据格式无效', 'error');
+                    }
+                } catch (error) {
+                    console.error('导入数据出错:', error);
+                    showNotification('导入数据失败', 'error');
+                }
+            };
+            
+            reader.readAsText(file);
+            
+            // 重置文件输入
+            importFile.value = '';
+        }
+
+        // 在页面加载时初始化应用
+        document.addEventListener('DOMContentLoaded', function() {
+            init();
+        });
